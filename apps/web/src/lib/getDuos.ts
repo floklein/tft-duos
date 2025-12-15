@@ -1,7 +1,7 @@
 import type { Account } from "@/types/account";
 import type { Duo } from "@/types/duo";
 import type { Match } from "@/types/match";
-import { mapWithConcurrency, riotFetchJson } from "./utils";
+import { riotFetchJson } from "./utils";
 
 export async function getDuos(region: string, playerNames: [string, string][]) {
   const players = await Promise.all(
@@ -41,7 +41,7 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
         player2.matchIds.includes(matchId),
       ),
       matchesAsDuo: [],
-      averagePlacement: 0,
+      averagePlacement: Number.POSITIVE_INFINITY,
     })),
   );
   const matches: Match[] = [];
@@ -76,22 +76,19 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
             (participant) => participant.puuid === duo.players[1].puuid,
           )?.partner_group_id,
     );
-    duo.averagePlacement =
-      duo.matchesAsDuo.length > 0
-        ? duo.matchesAsDuo.reduce(
-            (acc, match) =>
-              acc +
-              Math.min(
-                match.info.participants.find(
-                  (participant) => participant.puuid === duo.players[0].puuid,
-                )?.placement ?? Number.POSITIVE_INFINITY,
-                match.info.participants.find(
-                  (participant) => participant.puuid === duo.players[1].puuid,
-                )?.placement ?? Number.POSITIVE_INFINITY,
-              ),
-            0,
-          ) / duo.matchesAsDuo.length
-        : Number.POSITIVE_INFINITY;
+    if (duo.matchesAsDuo.length > 0) {
+      duo.averagePlacement =
+        duo.matchesAsDuo.reduce(
+          (acc, match) =>
+            acc +
+            Math.ceil(
+              (match.info.participants.find(
+                (participant) => participant.puuid === duo.players[0].puuid,
+              )?.placement ?? 0) / 2,
+            ),
+          0,
+        ) / duo.matchesAsDuo.length;
+    }
   });
   return duos;
 }

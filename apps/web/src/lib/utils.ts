@@ -36,26 +36,3 @@ export async function riotFetchJson<T>(
   const data = (await res.json()) as T;
   return { ok: true, data };
 }
-
-export async function mapWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  mapper: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let nextIdx = 0;
-  async function worker() {
-    while (true) {
-      const current = nextIdx;
-      nextIdx += 1;
-      if (current >= items.length) return;
-      results[current] = await mapper(items[current]);
-    }
-  }
-  const workers = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    () => worker(),
-  );
-  await Promise.all(workers);
-  return results;
-}
