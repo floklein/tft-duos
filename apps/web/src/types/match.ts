@@ -41,6 +41,7 @@ export interface Participant {
   traits: Trait[];
   units: Unit[];
   win: boolean;
+  partner_group_id?: number;
 }
 
 export interface Companion {
