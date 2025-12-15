@@ -21,7 +21,7 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
       };
       const idsUrl = `https://${region}.api.riotgames.com/tft/match/v1/matches/by-puuid/${encodeURIComponent(
         account.puuid,
-      )}/ids?start=0&count=100`;
+      )}/ids?start=0&count=25`;
       const idsRes = await riotFetchJson<string[]>(idsUrl);
       if (!idsRes.ok) {
         console.error(idsRes.errorText ?? "Failed to fetch match IDs.");
