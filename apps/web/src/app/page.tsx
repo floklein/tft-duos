@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { PodiumCard } from "@/components/podium-card";
 import { RankingRow } from "@/components/ranking-row";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +13,8 @@ const PLAYERS: [string, string][] = [
 ];
 
 export default async function Home() {
+  await connection();
+
   const duos = (await getDuos(REGION, PLAYERS)).sort(
     (a, b) => a.averagePlacement - b.averagePlacement,
   );
