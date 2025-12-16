@@ -11,7 +11,10 @@ type RiotErrorPayload = {
 
 export async function riotFetchJson<T>(
   url: string,
-): Promise<{ ok: true; data: T } | { ok: false; errorText: string }> {
+  cache = false,
+): Promise<
+  { ok: true; data: T; cacheHit: boolean } | { ok: false; errorText: string }
+> {
   const apiKey = process.env.RIOT_API_KEY;
   if (!apiKey) {
     return { ok: false, errorText: "Missing RIOT_API_KEY." };
@@ -20,8 +23,10 @@ export async function riotFetchJson<T>(
     headers: {
       "X-Riot-Token": apiKey,
     },
-    cache: "no-store",
+    cache: cache ? "force-cache" : "no-store",
   });
+  const date = new Date(res.headers.get("date") ?? "");
+  const cacheHit = Date.now() - date.getTime() > 10000;
   if (!res.ok) {
     let errorText = `${res.status} ${res.statusText}`;
     try {
@@ -34,5 +39,5 @@ export async function riotFetchJson<T>(
     return { ok: false, errorText };
   }
   const data = (await res.json()) as T;
-  return { ok: true, data };
+  return { ok: true, data, cacheHit };
 }

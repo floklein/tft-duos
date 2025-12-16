@@ -9,7 +9,7 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
       const url = `https://${region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(
         gameName,
       )}/${encodeURIComponent(tagLine)}`;
-      const res = await riotFetchJson<Account>(url);
+      const res = await riotFetchJson<Account>(url, true);
       if (!res.ok) {
         console.error(res.errorText ?? "Failed to resolve Riot ID.");
         return null;
@@ -21,7 +21,7 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
       };
       const idsUrl = `https://${region}.api.riotgames.com/tft/match/v1/matches/by-puuid/${encodeURIComponent(
         account.puuid,
-      )}/ids?start=0&count=25`;
+      )}/ids?start=0&count=100`;
       const idsRes = await riotFetchJson<string[]>(idsUrl);
       if (!idsRes.ok) {
         console.error(idsRes.errorText ?? "Failed to fetch match IDs.");
@@ -51,13 +51,15 @@ export async function getDuos(region: string, playerNames: [string, string][]) {
     const matchUrl = `https://${region}.api.riotgames.com/tft/match/v1/matches/${encodeURIComponent(
       matchId,
     )}`;
-    const matchRes = await riotFetchJson<Match>(matchUrl);
+    const matchRes = await riotFetchJson<Match>(matchUrl, true);
     if (!matchRes.ok) {
       console.error(matchRes.errorText ?? "Failed to fetch match details.");
       continue;
     }
     matches.push(matchRes.data);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    if (!matchRes.cacheHit) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
   }
   const definedMatches = matches.filter((match) => match !== null);
   const doubleUpMatches = definedMatches.filter(
