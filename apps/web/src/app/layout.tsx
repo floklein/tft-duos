@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "tft",
-  description: "tft",
+  title: "Classement TFT Double Up",
+  description: "Qui est le meilleur duo ? Les stats décident.",
 };
 
 export default function RootLayout({
