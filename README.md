@@ -1,52 +1,92 @@
-# tft
+# TFT Duos
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, and more.
+Small Next.js app that ranks Teamfight Tactics Double Up duos from Riot match history.
 
-## Features
+The app resolves a fixed list of Riot IDs, finds the games they played together, filters Double Up matches for TFT set 16, and sorts duos by average placement.
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Turborepo** - Optimized monorepo build system
-- **Biome** - Linting and formatting
+## Stack
 
-## Getting Started
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- shadcn/ui
+- Bun
+- Turborepo
+- Biome
 
-First, install the dependencies:
+## Requirements
+
+- Bun 1.2+
+- A Riot API key
+
+## Setup
+
+Install dependencies:
 
 ```bash
 bun install
 ```
 
+Create the app env file:
 
-Then, run the development server:
+```bash
+cp apps/web/.env.example apps/web/.env
+```
+
+Set your Riot API key in `apps/web/.env`:
+
+```bash
+RIOT_API_KEY=your_riot_api_key
+```
+
+Start the web app:
+
+```bash
+bun run dev:web
+```
+
+Or start the full workspace:
 
 ```bash
 bun run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see your fullstack application.
+The app runs on [http://localhost:3000](http://localhost:3000) by default unless your local environment overrides the port.
 
+## How It Works
 
+- Riot accounts are resolved from Riot ID pairs defined in [`apps/web/src/app/page.tsx`](/home/florent/tft/apps/web/src/app/page.tsx)
+- Shared match IDs are computed for every possible duo
+- Match details are fetched from the Riot TFT Match API
+- Only Double Up (`pairs`) matches from TFT set 16 are counted
+- The final ranking is sorted by lowest average placement
 
+## Customization
 
+Update these constants in [`apps/web/src/app/page.tsx`](/home/florent/tft/apps/web/src/app/page.tsx) to track a different group:
 
+- `REGION`
+- `PLAYERS`
 
+The Riot API calls and caching behavior live in [`apps/web/src/lib/getDuos.ts`](/home/florent/tft/apps/web/src/lib/getDuos.ts) and [`apps/web/src/lib/utils.ts`](/home/florent/tft/apps/web/src/lib/utils.ts).
+
+## Scripts
+
+- `bun run dev` runs the Turborepo workspace in development
+- `bun run dev:web` runs only the Next.js app
+- `bun run build` builds the workspace
+- `bun run check-types` runs TypeScript checks
+- `bun run check` runs Biome checks and writes fixes
 
 ## Project Structure
 
-```
+```text
 tft/
 ├── apps/
-│   └── web/         # Fullstack application (Next.js)
+│   └── web/        # Next.js frontend and Riot API integration
 ├── packages/
-│   ├── api/         # API layer / business logic
+│   └── config/     # Shared TypeScript config
+├── package.json
+└── turbo.json
 ```
-
-## Available Scripts
-
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run check`: Run Biome formatting and linting
